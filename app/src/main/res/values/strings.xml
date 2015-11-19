@@ -1,0 +1,23 @@
+<resources>
+    <string name="app_name">Süper Kelime Oyunu</string>
+    <string name="title_activity_main_menu">Süper Kelime Oyunu</string>
+    <string name="title_activity_splash">Süper Kelime Oyunu</string>
+    <string name="action_settings">Ayarlar</string>
+    <string name="copy_right">2015 Zargidi Games</string>
+    <string name="title_activity_game_play">Şimdi Oyna!</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="btn_default_question_index">1</string>
+    <string name="btn_default_question_score">0</string>
+    <string name="btn_default_sum_score">0</string>
+    <string name="btn_default_remaning_time">30</string>
+    <string name="btn_default_joker_count">40</string>
+
+    <string name="btn_text_question_score">SORU PUANI</string>
+    <string name="btn_text_sum_score">TOPLAM PUAN</string>
+    <string name="btn_text_remaning_time">KALAN SÜRE</string>
+    <string name="btn_text_joker_count">KALAN HARF</string>
+
+    <string name="question_default_text">SORU YÜKLENİYOR...</string>
+    <string name="title_activity_game_level_finish">Oyun bitti</string>
+</resources>
