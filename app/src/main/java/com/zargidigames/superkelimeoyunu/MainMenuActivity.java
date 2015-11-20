@@ -4,10 +4,9 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
-import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -18,8 +17,8 @@ import android.widget.ImageView;
 
 import com.zargidigames.superkelimeoyunu.api.ApiConfig;
 import com.zargidigames.superkelimeoyunu.api.ApiService;
+import com.zargidigames.superkelimeoyunu.config.GameConfig;
 import com.zargidigames.superkelimeoyunu.model.Level;
-import com.zargidigames.superkelimeoyunu.model.Question;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,10 +52,11 @@ public class MainMenuActivity extends ActionBarActivity {
         ActionBar actionBar = getSupportActionBar();
         actionBar.hide();
 
-        userPreferences = getPreferences(MODE_PRIVATE);
+        userPreferences = getApplicationContext().getSharedPreferences(GameConfig.GAME_PREF, 0);
         levelCount = userPreferences.getInt("levelCount", 15);
         userLevel = userPreferences.getInt("userLevel", 1);
         userJokerCount = userPreferences.getInt("userJokerCount", 40);
+
 
         mainGameLogo = (ImageView) findViewById(R.id.main_game_logo);
         playButton = (ImageButton) findViewById(R.id.button_play);
@@ -91,17 +91,18 @@ public class MainMenuActivity extends ActionBarActivity {
                     levels = levels_;
                     levelCount = levels.size();
 
-                    Log.d("ilimdebug", "levels->"+levels.toString());
-                    Log.d("ilimdebug", "levelCount->" + levelCount);
-                } else {
+                    if(GameConfig.GAME_MODE == 1){
+                        showAlertDialog("Test", "levelCount: " + levelCount + "-userLevel:" + userLevel + "-userJokerCount: " + userJokerCount);
+                    }
 
-                    showNotLoadedDialog("Hata!", "Oyun yüklenemedi.");
+                } else {
+                    showNotLoadedDialog(getString(R.string.title_error), getString(R.string.game_didnt_load));
                 }
             }
 
             @Override
             public void failure(RetrofitError error) {
-                showNotLoadedDialog("Hata!", "Oyun yüklenemedi, internet bağlantınızı konrol ediniz.");
+                showNotLoadedDialog(getString(R.string.title_error), getString(R.string.check_your_internet_connection));
             }
         });
 
@@ -109,7 +110,7 @@ public class MainMenuActivity extends ActionBarActivity {
 
     private void showNotLoadedDialog(String title, String message) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setPositiveButton("Tamam", new DialogInterface.OnClickListener() {
+        builder.setPositiveButton(getString(R.string.button_ok), new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface arg0, int arg1) {
                 getLevelsFromApi(language);
             }
@@ -158,6 +159,19 @@ public class MainMenuActivity extends ActionBarActivity {
 
         Intent intent = new Intent(this, GamePlayActivity.class);
         startActivity(intent);
+    }
+
+    private void showAlertDialog(String title, String message) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface arg0, int arg1) {
+                //checkActiveNetwork();
+            }
+        });
+        AlertDialog alertDialog = builder.create();
+        alertDialog.setTitle(title);
+        alertDialog.setMessage(message);
+        alertDialog.show();
     }
 
     @Override

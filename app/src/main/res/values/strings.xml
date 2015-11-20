@@ -20,4 +20,22 @@
 
     <string name="question_default_text">SORU YÜKLENİYOR...</string>
     <string name="title_activity_game_level_finish">Oyun bitti</string>
+    <string name="time_is_over">Süre bitti</string>
+    <string name="title_error">Hata!</string>
+    <string name="game_didnt_load">Oyun yüklenemedi.</string>
+    <string name="check_your_internet_connection">Oyun yüklenemedi, internet bağlantınızı konrol ediniz.</string>
+    <string name="button_ok">Tamam</string>
+    <string name="title_save_level_result">Tamamdır</string>
+    <string name="message_save_level_result">Level skorunuz kaydedildi.</string>
+    <string name="title_game_over_congratulations">Tebrikler!</string>
+    <string name="message_game_over_congratulations">Oyunu tamamen bitirdiniz :)</string>
+    <string name="text_loading">Yükleniyor...</string>
+    <string name="text_we_have_problem">Sorularda hata var.</string>
+    <string name="title_opps">Opps!</string>
+    <string name="text_joker_end">Harfleriniz bitti!</string>
+    <string name="text_we_no_have_question">Bir şeyler yanlış gidiyor. Soruyu bulamadık :(</string>
+    <string name="next_question">Sonraki soru</string>
+    <string name="questions_didnt_load">Sorular yüklenemedi.</string>
+    <string name="answer_is_true">Cevap Doğru</string>
+    <string name="answer_is_false">Cevap Yanlış</string>
 </resources>

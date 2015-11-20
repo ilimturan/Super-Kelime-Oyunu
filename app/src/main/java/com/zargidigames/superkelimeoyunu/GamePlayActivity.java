@@ -25,11 +25,13 @@ import android.widget.Button;
 import android.widget.Chronometer;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.zargidigames.superkelimeoyunu.api.ApiConfig;
 import com.zargidigames.superkelimeoyunu.api.ApiService;
+import com.zargidigames.superkelimeoyunu.config.GameConfig;
 import com.zargidigames.superkelimeoyunu.model.OptionLetter;
 import com.zargidigames.superkelimeoyunu.model.Question;
 
@@ -69,7 +71,6 @@ public class GamePlayActivity extends ActionBarActivity {
     private Button btnAnswered;
     private Button btnNextQuestion;
 
-
     private TextView textQuestion;
     private TextView textLetter1;
     private TextView textLetter2;
@@ -88,6 +89,10 @@ public class GamePlayActivity extends ActionBarActivity {
     private TextView textLetter15;
 
     private FrameLayout frameAnswered;
+    private LinearLayout linearLayoutRow1;
+    private LinearLayout linearLayoutRow2;
+    private LinearLayout linearLayoutRow3;
+
     private Button btnUserAnswerCheck;
     private EditText textUserAnswer;
     private Animation frameSlideTop1;
@@ -95,6 +100,7 @@ public class GamePlayActivity extends ActionBarActivity {
 
     private HashMap<Integer, TextView> optionletterViews = new HashMap<>();
     private HashMap<Integer, OptionLetter> optionLetters = new HashMap<>();
+    private boolean isOpenAllLetter = false;
 
     private int screenWidth;
     private int screenHeight;
@@ -102,36 +108,43 @@ public class GamePlayActivity extends ActionBarActivity {
     private Chronometer chronometer;
     private Handler handler;
 
+    private Animation slideLeftAnim1;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game_play);
 
         ActionBar actionBar = getSupportActionBar();
         actionBar.hide();
         handler = new Handler();
+        slideLeftAnim1 = AnimationUtils.loadAnimation(this, R.anim.slide_left_1);
 
-        userPreferences = getPreferences(MODE_PRIVATE);
+        //userPreferences = getPreferences(MODE_PRIVATE);
+        userPreferences = getApplicationContext().getSharedPreferences(GameConfig.GAME_PREF, 0);
+
         levelCount = userPreferences.getInt("levelCount", 15);
         userLevel = userPreferences.getInt("userLevel", 1);
         userJokerCount = userPreferences.getInt("userJokerCount", 40);
 
-        showToastMessage("Level: "+userLevel);
         getLevel(userLevel);
 
     }
 
     private void getLevel(int levelId) {
 
-        progressDialog = ProgressDialog.show(this, "Yükleniyor", "", true);
+        progressDialog = ProgressDialog.show(this, getString(R.string.text_loading), "", true);
+
+        getDataFromApi(levelId);
         getViewElements();
         getScreenSizes();
         setOptionsSizes();
-        getDataFromApi(levelId);
 
     }
 
     private void getScreenSizes() {
+
         Display display = getWindowManager().getDefaultDisplay();
         Point size = new Point();
         display.getSize(size);
@@ -140,6 +153,7 @@ public class GamePlayActivity extends ActionBarActivity {
     }
 
     private void setOptionsSizes() {
+
         for (int i = 1; i <= optionViewCount; i++) {
 
             TextView optionsView = optionletterViews.get(i);
@@ -157,11 +171,19 @@ public class GamePlayActivity extends ActionBarActivity {
     }
 
     private void startMainMenuActivity() {
+
         Intent intent = new Intent(this, MainMenuActivity.class);
         startActivity(intent);
     }
 
     private void loadNextQuestion() {
+
+        btnGetLetter.setClickable(true);
+        btnAnswered.setClickable(true);
+        textUserAnswer.setText("");
+
+        linearLayoutRow2.setVisibility(View.VISIBLE);
+        hideAnswerFrame();
         questionActiveNumber++;
 
         if (questions.get(questionActiveNumber) != null) {
@@ -169,6 +191,8 @@ public class GamePlayActivity extends ActionBarActivity {
             btnGetLetter.setClickable(true);
             optionViewOpenCount = 0;
             questionActive = questions.get(questionActiveNumber);
+
+            linearLayoutRow2.startAnimation(slideLeftAnim1);
 
             btnQuestionIndex.setText("" + questionActiveNumber);
             btnQuestionScore.setText("" + questionActive.word_score);
@@ -187,13 +211,14 @@ public class GamePlayActivity extends ActionBarActivity {
         } else if (questionActiveNumber > questionCount) {
             loadLevelFinish();
         } else {
-            showAlertDialog("Hata", "Sorularda hata var!");
+            showAlertDialog(getString(R.string.title_error), getString(R.string.text_we_have_problem));
         }
 
     }
 
 
     private void setOptionLetterMaps() {
+
         for (int k = 1; k <= questionActive.word.length(); k++) {
             OptionLetter optionLetter = new OptionLetter();
             optionLetter.letter = "" + questionActive.word.charAt(k - 1);
@@ -204,6 +229,7 @@ public class GamePlayActivity extends ActionBarActivity {
     }
 
     private void setOptionLetterViews() {
+
         for (int i = 1; i <= optionViewCount; i++) {
             if (i <= questionActive.word.length()) {
                 optionletterViews.get(i).setVisibility(View.VISIBLE);
@@ -219,6 +245,7 @@ public class GamePlayActivity extends ActionBarActivity {
 
         SharedPreferences.Editor editor = userPreferences.edit();
         editor.putInt("userLevel", userLevel);
+        editor.putInt("userJokerCount", userJokerCount);
         editor.putInt("userLevelScore_" + userLevel, userLevelScore);
         editor.commit();
 
@@ -246,13 +273,9 @@ public class GamePlayActivity extends ActionBarActivity {
 
         String userAnswer = textUserAnswer.getText().toString();
         if (userAnswer.length() > 0) {
-            hideKeybord();
             checkUserAnswer(userAnswer);
-
             textUserAnswer.setText("");
-            frameAnswered.setVisibility(View.GONE);
-            btnGetLetter.setClickable(true);
-            btnAnswered.setClickable(true);
+            hideAnswerFrame();
         }
     }
 
@@ -262,7 +285,7 @@ public class GamePlayActivity extends ActionBarActivity {
 
             getRandomLetter();
         } else {
-            showAlertDialog("Opps", "Harfleriniz bitti!");
+            showAlertDialog(getString(R.string.title_opps), getString(R.string.text_joker_end));
         }
 
     }
@@ -270,19 +293,18 @@ public class GamePlayActivity extends ActionBarActivity {
 
     private void getRandomLetter() {
 
-
-
         int min = 1;
         int max = questionActive.word.length();
         Random random = new Random();
         int randIndex = random.nextInt((max - min) + 1) + min;
 
         if (optionViewOpenCount >= questionActive.letter_count) {
+            isOpenAllLetter = true;
             sleepAndNextQuestion();
 
         } else if (optionLetters.get(randIndex).isOpen) {
             getRandomLetter();
-        } else if(optionLetters.get(randIndex) != null) {
+        } else if (optionLetters.get(randIndex) != null) {
             userJokerCount--;
             optionViewOpenCount++;
             setJokerCount();
@@ -294,32 +316,22 @@ public class GamePlayActivity extends ActionBarActivity {
                 sleepAndNextQuestion();
             }
 
-        }else{
-            showAlertDialog("Opps!", "Bir şeyler yanlış gidiyor. Soruyu bulamadık :(");
+        } else {
+            showAlertDialog(getString(R.string.title_opps), getString(R.string.text_we_no_have_question));
         }
 
-
-    }
-
-    private void sleepAndNextQuestion() {
-        btnGetLetter.setClickable(false);
-        showToastMessage("Sonraki soru");
-        handler.postDelayed(new Runnable() {
-            public void run() {
-                loadNextQuestion();
-            }
-        }, 1000);
     }
 
     private void getViewElements() {
+
         btnQuestionIndex = (Button) findViewById(R.id.btn_question_index);
         btnQuestionScore = (Button) findViewById(R.id.btn_question_score);
         btnSumScore = (Button) findViewById(R.id.btn_sum_score);
         btnJokerCount = (Button) findViewById(R.id.btn_joker_count);
-
         btnGetLetter = (Button) findViewById(R.id.btn_get_letter);
         btnAnswered = (Button) findViewById(R.id.btn_answered);
         btnNextQuestion = (Button) findViewById(R.id.btn_next_question);
+        btnNextQuestion.setVisibility(View.GONE);
 
         textQuestion = (TextView) findViewById(R.id.text_question);
         textLetter1 = (TextView) findViewById(R.id.text_letter_1);
@@ -355,6 +367,9 @@ public class GamePlayActivity extends ActionBarActivity {
         optionletterViews.put(15, textLetter15);
 
         frameAnswered = (FrameLayout) findViewById(R.id.frame_answered);
+        linearLayoutRow1 = (LinearLayout) findViewById(R.id.layout_row_1);
+        linearLayoutRow2 = (LinearLayout) findViewById(R.id.layout_row_2);
+        linearLayoutRow3 = (LinearLayout) findViewById(R.id.layout_row_3);
         btnUserAnswerCheck = (Button) findViewById(R.id.btn_user_answer_check);
         textUserAnswer = (EditText) findViewById(R.id.text_user_answer);
         frameSlideTop1 = AnimationUtils.loadAnimation(this, R.anim.slide_top_1);
@@ -369,14 +384,17 @@ public class GamePlayActivity extends ActionBarActivity {
             @Override
             public void onChronometerTick(Chronometer chronometer) {
                 long elapsedSecond = (SystemClock.elapsedRealtime() - chronometer.getBase()) / 1000;
-                int remaningSecond = (int) (30 - elapsedSecond);
+                int remaningSecond = (int) (GameConfig.QUESTION_TIME - elapsedSecond);
                 if (remaningSecond > 0) {
+
                     chronometer.setText("" + remaningSecond);
+                    if(isOpenAllLetter){
+                        loadNextQuestion();
+                    }
                 } else {
-                    showToastMessage("Süre bitti");
+                    showToastMessage(getString(R.string.time_is_over));
                     loadNextQuestion();
                 }
-
 
             }
         });
@@ -390,6 +408,11 @@ public class GamePlayActivity extends ActionBarActivity {
         chronometerLayoutParams.height = btnJokerCountLayoutParams.height;
         chronometerLayoutParams.width = btnJokerCountLayoutParams.width;
         chronometer.setLayoutParams(chronometerLayoutParams);
+
+        if(GameConfig.GAME_MODE == 1){
+            btnNextQuestion.setVisibility(View.VISIBLE);
+            showToastMessage("levelCount: " + levelCount + "-userLevel:" + userLevel + "-userJokerCount: " + userJokerCount);
+        }
 
     }
 
@@ -413,29 +436,39 @@ public class GamePlayActivity extends ActionBarActivity {
                     progressDialog.dismiss();
                 } else {
                     progressDialog.dismiss();
-                    showNotLoadedDialog("Hata!", "Sorular yüklenemedi.");
+                    showNotLoadedDialog(getString(R.string.title_error), getString(R.string.questions_didnt_load));
                 }
             }
 
             @Override
             public void failure(RetrofitError error) {
                 progressDialog.dismiss();
-                showNotLoadedDialog("Hata!", "Sorular yüklenemedi.");
+                showNotLoadedDialog(getString(R.string.title_error), getString(R.string.questions_didnt_load));
             }
         });
     }
 
 
     public void showAnswerFrame() {
+
+        //chronometer.stop();
         showKeybord();
         frameAnswered.clearAnimation();
         frameAnswered.setVisibility(View.VISIBLE);
         frameAnswered.setAnimation(frameSlideTop1);
         btnGetLetter.setClickable(false);
         btnAnswered.setClickable(false);
-
         textUserAnswer.setFocusableInTouchMode(true);
         textUserAnswer.requestFocus();
+    }
+
+    public void hideAnswerFrame() {
+
+        //chronometer.start();
+        hideKeybord();
+        frameAnswered.setVisibility(View.INVISIBLE);
+        btnGetLetter.setClickable(true);
+        btnAnswered.setClickable(true);
     }
 
 
@@ -447,16 +480,24 @@ public class GamePlayActivity extends ActionBarActivity {
         if ((userAnswer.length() == trueAnswer.length()) && questionActive.word.contains(userAnswer)) {
 
             userLevelScore += userRemaningScore;
-            showToastMessage("Cevap doğru");
+            btnSumScore.setText("" + userLevelScore);
+            showToastMessage(getString(R.string.answer_is_true));
+            waitForNextQuestion();
 
-            loadNextQuestion();
         } else {
-            showToastMessage("Cevap yanlış");
+            showToastMessage(getString(R.string.answer_is_false));
         }
     }
 
+    private void showAllLetter() {
+
+        for (int k = 1; k <= questionActive.word.length(); k++) {
+            optionletterViews.get(k).setText(optionLetters.get(k).letter.toUpperCase());
+        }
+    }
 
     private void setQuestionScore() {
+
         if (userRemaningScore >= 100) {
             userRemaningScore = userRemaningScore - 100;
         }
@@ -464,6 +505,30 @@ public class GamePlayActivity extends ActionBarActivity {
         btnQuestionScore.setText("" + userRemaningScore);
     }
 
+    private void waitForNextQuestion() {
+
+        btnGetLetter.setClickable(false);
+        btnAnswered.setClickable(false);
+        showAllLetter();
+        handler.postDelayed(new Runnable() {
+            public void run() {
+                loadNextQuestion();
+            }
+        }, GameConfig.ANSWER_TRUE_NEXT_WAIT);
+    }
+
+    private void sleepAndNextQuestion() {
+
+        btnGetLetter.setClickable(false);
+        btnAnswered.setClickable(false);
+        showToastMessage(getString(R.string.next_question));
+        handler.postDelayed(new Runnable() {
+            public void run() {
+                loadNextQuestion();
+            }
+        }, GameConfig.QUESTION_NEXT_WAIT);
+
+    }
 
     public void hideKeybord() {
 
@@ -480,7 +545,7 @@ public class GamePlayActivity extends ActionBarActivity {
 
     private void showNotLoadedDialog(String title, String message) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setPositiveButton("Tamam", new DialogInterface.OnClickListener() {
+        builder.setPositiveButton(getString(R.string.button_ok), new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface arg0, int arg1) {
                 startMainMenuActivity();
             }
@@ -494,7 +559,7 @@ public class GamePlayActivity extends ActionBarActivity {
 
     private void showAlertDialog(String title, String message) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+        builder.setPositiveButton(getString(R.string.button_ok), new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface arg0, int arg1) {
                 //checkActiveNetwork();
             }

@@ -8,7 +8,7 @@ public class OptionLetter {
     public String letter;
     public Boolean isOpen;
 
-    public OptionLetter(){
+    public OptionLetter() {
         letter = "";
         isOpen = false;
     }
