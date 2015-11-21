@@ -54,7 +54,7 @@ public class GamePlayActivity extends ActionBarActivity {
     private int questionCount = 0;
     private int userLevelScore = 0;
     private int userRemaningScore = 0;
-    private int userJokerCount = 40;
+    private int userJokerCount = 0;
 
     private int optionViewCount = 15;
     private int optionViewOpenCount = 0;
@@ -126,7 +126,7 @@ public class GamePlayActivity extends ActionBarActivity {
 
         levelCount = userPreferences.getInt("levelCount", 15);
         userLevel = userPreferences.getInt("userLevel", 1);
-        userJokerCount = userPreferences.getInt("userJokerCount", 40);
+        userJokerCount = userPreferences.getInt("userJokerCount", GameConfig.USER_JOKER_COUNT);
 
         getLevel(userLevel);
 
@@ -177,7 +177,7 @@ public class GamePlayActivity extends ActionBarActivity {
     }
 
     private void loadNextQuestion() {
-
+        isOpenAllLetter = false;
         btnGetLetter.setClickable(true);
         btnAnswered.setClickable(true);
         textUserAnswer.setText("");
@@ -302,7 +302,7 @@ public class GamePlayActivity extends ActionBarActivity {
             isOpenAllLetter = true;
             sleepAndNextQuestion();
 
-        } else if (optionLetters.get(randIndex).isOpen) {
+        } else if (optionLetters.get(randIndex).isOpen && optionViewOpenCount < questionActive.letter_count) {
             getRandomLetter();
         } else if (optionLetters.get(randIndex) != null) {
             userJokerCount--;
@@ -434,6 +434,16 @@ public class GamePlayActivity extends ActionBarActivity {
                     questionCount = questions.size();
                     loadNextQuestion();
                     progressDialog.dismiss();
+
+                    String alertTitle = getString(R.string.title_start_level, userLevel);
+                    String alertText = getString(R.string.text_start_level, questionCount);
+
+                    showAlertDialog(alertTitle, alertText);
+
+                    if(GameConfig.GAME_MODE == 1){
+                        showToastMessage("questionCount: " + questionCount);
+                    }
+
                 } else {
                     progressDialog.dismiss();
                     showNotLoadedDialog(getString(R.string.title_error), getString(R.string.questions_didnt_load));

@@ -45,7 +45,7 @@ public class GameLevelFinishActivity extends ActionBarActivity {
 
         levelCount = userPreferences.getInt("levelCount", 15);
         userLevel = userPreferences.getInt("userLevel", 1);
-        userJokerCount = userPreferences.getInt("userJokerCount", 40);
+        userJokerCount = userPreferences.getInt("userJokerCount", GameConfig.USER_JOKER_COUNT);
         userLevelScore = userPreferences.getInt("userLevelScore_" + userLevel, 0);
         getViewElements();
         checkGameOver();
@@ -74,11 +74,11 @@ public class GameLevelFinishActivity extends ActionBarActivity {
     public void getClicked(View v) {
 
         if (v.getId() == btnFinishSave.getId()) {
-            saveUserLevelResult();
+            //saveUserLevelResult();
         } else if (v.getId() == btnFinishNewGame.getId()) {
             startNewGame();
         } else if (v.getId() == btnFinishShare.getId()) {
-            shareUserResult();
+            //shareUserResult();
         }
     }
 
@@ -90,6 +90,7 @@ public class GameLevelFinishActivity extends ActionBarActivity {
 
         if (userLevel >= levelCount) {
             showAlertDialog(getString(R.string.title_game_over_congratulations), getString(R.string.message_game_over_congratulations));
+            btnFinishNewGame.setVisibility(View.INVISIBLE);
             SharedPreferences.Editor editor = userPreferences.edit();
             editor.putInt("levelCount", levelCount);
             editor.putInt("userJokerCount", 40);

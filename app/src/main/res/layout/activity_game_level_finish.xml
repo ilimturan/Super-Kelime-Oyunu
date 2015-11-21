@@ -92,7 +92,8 @@
                     android:id="@+id/btn_finis_save"
                     android:background="@drawable/button_finish_kaydet"
                     android:onClick="getClicked"
-                    android:clickable="true"/>
+                    android:clickable="true"
+                    android:visibility="gone"/>
             </LinearLayout>
 
             <LinearLayout
@@ -125,7 +126,8 @@
                     android:layout_height="wrap_content"
                     android:id="@+id/btn_finish_share"
                     android:background="@drawable/button_finish_paylas"
-                    android:onClick="getClicked"/>
+                    android:onClick="getClicked"
+                    android:visibility="gone"/>
             </LinearLayout>
 
         </LinearLayout>

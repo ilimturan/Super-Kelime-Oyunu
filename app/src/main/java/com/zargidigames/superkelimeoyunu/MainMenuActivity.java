@@ -55,7 +55,7 @@ public class MainMenuActivity extends ActionBarActivity {
         userPreferences = getApplicationContext().getSharedPreferences(GameConfig.GAME_PREF, 0);
         levelCount = userPreferences.getInt("levelCount", 15);
         userLevel = userPreferences.getInt("userLevel", 1);
-        userJokerCount = userPreferences.getInt("userJokerCount", 40);
+        userJokerCount = userPreferences.getInt("userJokerCount", GameConfig.USER_JOKER_COUNT);
 
 
         mainGameLogo = (ImageView) findViewById(R.id.main_game_logo);
