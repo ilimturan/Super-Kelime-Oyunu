@@ -6,8 +6,9 @@ package com.zargidigames.superkelimeoyunu.config;
 public class GameConfig {
 
     public final static int GAME_MODE = 2; //1 -> test, 2 -> production
-    public final static String GAME_PREF = "ZARGIDI_WORD_GAME_PREF"; //for shared pref
+    public final static String GAME_PREF = "ZRGD_WORD_GAME_PREF"; //for shared pref
     public final static int QUESTION_TIME = 60; //One question answer, second
     public final static int QUESTION_NEXT_WAIT = 3000; //wait for skip to next question, milisecond
     public final static int ANSWER_TRUE_NEXT_WAIT = 3000; //wait for skip to next question, milisecond
+    public final static int USER_JOKER_COUNT = 80;
 }
