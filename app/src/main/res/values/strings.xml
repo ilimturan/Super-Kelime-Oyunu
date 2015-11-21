@@ -38,4 +38,7 @@
     <string name="questions_didnt_load">Sorular yüklenemedi.</string>
     <string name="answer_is_true">Cevap Doğru</string>
     <string name="answer_is_false">Cevap Yanlış</string>
+
+    <string name="title_start_level">Level %1$d başlıyor!</string>
+    <string name="text_start_level">Bu levelde cevaplamanız gereken %1$d soru var.</string>
 </resources>
