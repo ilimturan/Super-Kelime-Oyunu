@@ -271,9 +271,13 @@ public class GamePlayActivity extends ActionBarActivity {
 
     private void userAnswerButtonClicked() {
 
-        String userAnswer = textUserAnswer.getText().toString();
+        String userAnswer = textUserAnswer.getText().toString().trim();
+
         if (userAnswer.length() > 0) {
             checkUserAnswer(userAnswer);
+            textUserAnswer.setText("");
+            hideAnswerFrame();
+        }else{
             textUserAnswer.setText("");
             hideAnswerFrame();
         }
@@ -281,8 +285,8 @@ public class GamePlayActivity extends ActionBarActivity {
 
 
     private void getLetter() {
-        if (userJokerCount > 0) {
 
+        if (userJokerCount > 0) {
             getRandomLetter();
         } else {
             showAlertDialog(getString(R.string.title_opps), getString(R.string.text_joker_end));
