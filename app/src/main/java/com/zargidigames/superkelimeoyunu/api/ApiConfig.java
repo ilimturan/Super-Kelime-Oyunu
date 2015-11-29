@@ -6,6 +6,6 @@ package com.zargidigames.superkelimeoyunu.api;
 public class ApiConfig {
 
     public final static String API_BASE_URL = "http://zargidigames.com/index.php/wordgameapi/";
-    public final static String API_KEY = "12345";
+    public final static String API_KEY = "XXXXX";
 
 }
