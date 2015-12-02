@@ -491,7 +491,7 @@ public class GamePlayActivity extends ActionBarActivity {
         String userAnswer = userAnswer_.toLowerCase().trim();
         String trueAnswer = questionActive.word.toLowerCase().trim();
 
-        if ((userAnswer.length() == trueAnswer.length()) && questionActive.word.contains(userAnswer)) {
+        if (trueAnswer.equals(userAnswer)) {
 
             userLevelScore += userRemaningScore;
             btnSumScore.setText("" + userLevelScore);
